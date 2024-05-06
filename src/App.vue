@@ -5,6 +5,7 @@ const input = ref('');
 const todos = ref<{ id: string, content: string, done: boolean }[]>([]);
 
 const addTodo = () => {
+    if(!input.value) return;
     todos.value = [...todos.value, { id: crypto.randomUUID(), content: input.value, done: false}];
     input.value = '';
 }
@@ -30,10 +31,19 @@ const changeTitle = (id: string, newTitle: string) => {
     for(const todo of result) {
         if(todo.id === id) {
             todo.content = newTitle;
+            todos.value = result;
         }
     }
-    todos.value = result;
 };
+
+const deleteWhenEmpty = (id: string) => {
+    for(const todo of todos.value) {
+        if(!todo.content) {
+            const result = todos.value.filter((todo) => todo.id !== id);
+            todos.value = result;
+        }
+    }
+}
 
 
 
@@ -48,11 +58,12 @@ const changeTitle = (id: string, newTitle: string) => {
         <li v-for="todo in todos">
             <Todo 
                 :content="todo.content" 
-                :on-delete="() => deleteTodo(todo.id)" 
-                :on-change="() => changeTodoStatus(todo.id)" 
+                :on-delete="() => deleteTodo(todo.id)"
+                :on-change="() => changeTodoStatus(todo.id)"
+                :on-delete-when-empty="() => deleteWhenEmpty(todo.id)"
                 :done="todo.done"
                 :id="todo.id"
-                @change-title = "changeTitle"
+                @change-title="changeTitle"
             />
         </li>
     </ul>
@@ -93,6 +104,20 @@ const changeTitle = (id: string, newTitle: string) => {
         border: #404366 2px solid;
         border-radius: 50%;
         background: none;
+        position: relative;
+    }
+
+    button:hover::before {
+        content: '';
+        background-color: #404366;
+        width: 0px;
+        height: 0px;
+        position: absolute;
+        border-radius: 50%;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        animation: hoverBtn .2s forwards ease-in-out;
     }
 
     li {
@@ -100,5 +125,16 @@ const changeTitle = (id: string, newTitle: string) => {
         flex-direction: column;
         background-color: #25273c;
         padding: 1rem;
+    }
+
+    @keyframes hoverBtn {
+        0% {
+            width: 0px;
+            height: 0px;
+        }
+        100% {
+            width: 100%;
+            height: 100%;
+        }
     }
 </style>

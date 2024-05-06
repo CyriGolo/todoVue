@@ -4,8 +4,9 @@
         content: string,
         onDelete: () => void,
         onChange: () => void,
+        onDeleteWhenEmpty: () => void,
         done: boolean,
-        id: string
+        id: string,
     }
     const props = defineProps<I>()
 
@@ -16,7 +17,7 @@
     <div class="container">
         <div>
             <input type="checkbox" :checked="props.done" @change="props.onChange" />
-            <input type="text" v-model="title" @input="$emit('changeTitle', props.id, title)" :class="props.done ? 'done' : ''">
+            <input type="text" v-model="title" v-on:blur="props.onDeleteWhenEmpty" @input="$emit('changeTitle', props.id, title)" :class="props.done ? 'done' : ''">
         </div>
         <button @click="props.onDelete">🗑️</button>
     </div>
